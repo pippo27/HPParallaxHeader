@@ -105,6 +105,14 @@ open class HPParallaxHeader: NSObject {
             }
         }
     }
+    
+    public var overlapSpacing: CGFloat? {
+        didSet {
+            if (overlapSpacing != oldValue) {
+                updateConstraints()
+            }
+        }
+    }
 
     /**
      The header's minimum height while scrolling up. 0 by default.
@@ -166,7 +174,13 @@ open class HPParallaxHeader: NSObject {
         guard let view = view else { return }
         
         contentView.removeFromSuperview()
-        scrollView?.addSubview(contentView)
+        if overlapSpacing != nil {
+            contentView.clipsToBounds = false
+            scrollView?.insertSubview(contentView, at: 0)
+        } else {
+            contentView.clipsToBounds = true
+            scrollView?.addSubview(contentView)
+        }
         
         view.removeFromSuperview()
         contentView.addSubview(view)
@@ -200,7 +214,7 @@ open class HPParallaxHeader: NSObject {
         view?.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         view?.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         view?.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        view?.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        view?.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: overlapSpacing ?? 0).isActive = true
     }
     
     func setTopFillModeConstraints() {
